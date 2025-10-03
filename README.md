@@ -254,6 +254,10 @@ This enables direct performance comparison in Datadog SLO dashboards.
 ## References
 
 ### Datadog Documentation
+- [DogStatsD for Go](https://docs.datadoghq.com/developers/dogstatsd/?tab=go) - Custom metrics with StatsD client
+- [Tagging Best Practices](https://docs.datadoghq.com/getting_started/tagging/) - Effective tagging strategies
+- [Custom Instrumentation (Go)](https://docs.datadoghq.com/tracing/trace_collection/custom_instrumentation/go/dd-api/) - Manual tracing with DD API
+- [Software Catalog](https://docs.datadoghq.com/internal_developer_portal/software_catalog/#what-appears-in-software-catalog) - Service discovery and metadata
 - [Inferred Services Setup](https://docs.datadoghq.com/tracing/services/inferred_services/?tab=agentv7600#set-up-inferred-services) - Configure automatic service discovery
 - [Service Level Objectives](https://docs.datadoghq.com/service_management/service_level_objectives/) - Complete SLO documentation
 - [SLO Metric Queries](https://docs.datadoghq.com/service_management/service_level_objectives/metric/#define-queries) - Define SLO queries
