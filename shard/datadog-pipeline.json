@@ -1,0 +1,871 @@
+{
+  "title": "Multi-Service Pipeline - Shard Observability Dashboard",
+  "description": "Comprehensive monitoring for Service1 → SQS1 → Service2 → SQS2 → Service3 pipeline with shard comparison and performance tracking",
+  "widgets": [
+    {
+      "id": 3739756898049787,
+      "definition": {
+        "title": "End to End Pipeline",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "topology_map",
+        "requests": [
+          {
+            "request_type": "topology",
+            "query": {
+              "filters": [
+                "env:pipeline"
+              ],
+              "service": "service2",
+              "data_source": "service_map",
+              "query_string": "service:(service2)"
+            }
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 12,
+        "height": 3
+      }
+    },
+    {
+      "id": 1589877161004206,
+      "definition": {
+        "title": "",
+        "title_size": "16",
+        "title_align": "left",
+        "requests": [
+          {
+            "request_type": "slo_list",
+            "query": {
+              "query_string": "",
+              "limit": 100
+            }
+          }
+        ],
+        "type": "slo_list"
+      },
+      "layout": {
+        "x": 0,
+        "y": 3,
+        "width": 12,
+        "height": 2
+      }
+    },
+    {
+      "id": 1,
+      "definition": {
+        "title": "Pipeline Step Durations (P95)",
+        "show_legend": true,
+        "legend_layout": "auto",
+        "type": "timeseries",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:business.pipeline.step1.duration.95percentile{service:service1}"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Step1 Duration",
+                "formula": "query1"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "dog_classic",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "avg:business.pipeline.step2.duration.95percentile{service:service2}"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Step2 Duration",
+                "formula": "query2"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "warm",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query3",
+                "query": "avg:business.pipeline.step3.duration.95percentile{service:service3}"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Step3 Duration",
+                "formula": "query3"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "cool",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 5,
+        "width": 8,
+        "height": 4
+      }
+    },
+    {
+      "id": 2,
+      "definition": {
+        "title": "End-to-End Pipeline Duration",
+        "type": "query_value",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "number_format": {
+                  "unit": {
+                    "type": "canonical_unit",
+                    "unit_name": "millisecond"
+                  }
+                },
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:business.pipeline.end_to_end.duration.95percentile{service:service3}",
+                "aggregator": "avg"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "autoscale": true,
+        "precision": 2
+      },
+      "layout": {
+        "x": 8,
+        "y": 5,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 3,
+      "definition": {
+        "title": "Pipeline Throughput",
+        "type": "query_value",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:business.pipeline.completed{service:service3}.as_rate()",
+                "aggregator": "last"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "autoscale": true,
+        "custom_unit": "msg/s",
+        "precision": 2
+      },
+      "layout": {
+        "x": 8,
+        "y": 7,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 4,
+      "definition": {
+        "title": "Inter-Step Queue Latency",
+        "show_legend": true,
+        "legend_layout": "auto",
+        "type": "timeseries",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:business.pipeline.step1_to_step2.duration.95percentile{service:service2}"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Step1→Step2 Queue Latency",
+                "formula": "query1"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "purple",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "avg:business.pipeline.step2_to_step3.duration.95percentile{service:service3}"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Step2→Step3 Queue Latency",
+                "formula": "query2"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "orange",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 9,
+        "width": 8,
+        "height": 3
+      }
+    },
+    {
+      "id": 5,
+      "definition": {
+        "title": "Pipeline Success ",
+        "show_legend": true,
+        "legend_layout": "auto",
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "type": "timeseries",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:business.pipeline.messages.step1{service:service1}.as_count()"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Step1 Messages",
+                "formula": "query1"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "dog_classic",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:business.pipeline.messages.step2{service:service2}.as_count()"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Step2 Messages",
+                "formula": "query2"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "warm",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query3",
+                "query": "sum:business.pipeline.completed{service:service3}.as_count()"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Pipeline Completed",
+                "formula": "query3"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "cool",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          }
+        ]
+      },
+      "layout": {
+        "x": 8,
+        "y": 9,
+        "width": 4,
+        "height": 3
+      }
+    },
+    {
+      "id": 6,
+      "definition": {
+        "title": "Pipeline Error Tracking",
+        "show_legend": true,
+        "legend_layout": "auto",
+        "type": "timeseries",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:business.pipeline.errors.step1{service:service1}.as_count()"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Step1 Errors",
+                "formula": "query1"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "red",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "bars"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:business.pipeline.errors.step2{service:service2}.as_count()"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Step2 Errors",
+                "formula": "query2"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "orange",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "bars"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query3",
+                "query": "sum:business.pipeline.failed.step2{service:service2}.as_count()"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Step2 Failed Processing",
+                "formula": "query3"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "purple",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "bars"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 12,
+        "width": 12,
+        "height": 3
+      }
+    },
+    {
+      "id": 7,
+      "definition": {
+        "title": "service1 #env:pipeline",
+        "type": "trace_service",
+        "env": "pipeline",
+        "service": "service1",
+        "span_name": "http.request",
+        "show_hits": true,
+        "show_errors": true,
+        "show_latency": true,
+        "show_breakdown": true,
+        "show_distribution": true,
+        "show_resource_list": false,
+        "size_format": "medium",
+        "display_format": "two_column"
+      },
+      "layout": {
+        "x": 0,
+        "y": 15,
+        "width": 4,
+        "height": 10
+      }
+    },
+    {
+      "id": 8,
+      "definition": {
+        "title": "service2 #env:pipeline",
+        "type": "trace_service",
+        "env": "pipeline",
+        "service": "service2",
+        "span_name": "sqs.receive",
+        "show_hits": true,
+        "show_errors": true,
+        "show_latency": true,
+        "show_breakdown": true,
+        "show_distribution": true,
+        "show_resource_list": false,
+        "size_format": "medium",
+        "display_format": "two_column"
+      },
+      "layout": {
+        "x": 4,
+        "y": 15,
+        "width": 4,
+        "height": 10
+      }
+    },
+    {
+      "id": 9,
+      "definition": {
+        "title": "service3 #env:pipeline",
+        "type": "trace_service",
+        "env": "pipeline",
+        "service": "service3",
+        "span_name": "sqs.receive",
+        "show_hits": true,
+        "show_errors": true,
+        "show_latency": true,
+        "show_breakdown": true,
+        "show_distribution": true,
+        "show_resource_list": false,
+        "size_format": "medium",
+        "display_format": "two_column"
+      },
+      "layout": {
+        "x": 8,
+        "y": 15,
+        "width": 4,
+        "height": 10
+      }
+    },
+    {
+      "id": 11,
+      "definition": {
+        "title": "Shard Success Rate Comparison",
+        "type": "query_table",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "success",
+                "query": "sum:sli.pipeline.success{*} by {shard}.as_count()",
+                "aggregator": "sum"
+              },
+              {
+                "data_source": "metrics",
+                "name": "total",
+                "query": "sum:sli.pipeline.total{*} by {shard}.as_count()",
+                "aggregator": "sum"
+              }
+            ],
+            "response_format": "scalar",
+            "formulas": [
+              {
+                "alias": "Success Rate %",
+                "formula": "(success / total) * 100",
+                "cell_display_mode": "bar"
+              },
+              {
+                "alias": "Total Pipelines",
+                "formula": "total"
+              }
+            ]
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 25,
+        "width": 6,
+        "height": 4
+      }
+    },
+    {
+      "id": 10,
+      "definition": {
+        "title": "Shard Comparison - Pipeline Duration",
+        "show_legend": true,
+        "legend_layout": "auto",
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "type": "timeseries",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "baseline",
+                "query": "avg:sli.pipeline.duration.95percentile{shard:shard-baseline}"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Shard Baseline",
+                "formula": "baseline"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "dog_classic",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "shard1",
+                "query": "avg:sli.pipeline.duration.95percentile{shard:shard-1}"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Shard-1 (Optimized)",
+                "formula": "shard1"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "green",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "shard2",
+                "query": "avg:sli.pipeline.duration.95percentile{shard:shard-2}"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Shard-2",
+                "formula": "shard2"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "purple",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          }
+        ]
+      },
+      "layout": {
+        "x": 6,
+        "y": 25,
+        "width": 6,
+        "height": 4
+      }
+    },
+    {
+      "id": 12,
+      "definition": {
+        "title": "Shard Performance Matrix",
+        "show_legend": true,
+        "legend_layout": "horizontal",
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "type": "timeseries",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:sli.pipeline.duration.95percentile{*} by {shard}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "dog_classic",
+              "order_by": "values",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 29,
+        "width": 12,
+        "height": 4
+      }
+    },
+    {
+      "id": 13,
+      "definition": {
+        "title": "Active Shards Status",
+        "show_legend": true,
+        "legend_layout": "auto",
+        "time": {},
+        "type": "timeseries",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "alias": "Total Requests",
+                "formula": "requests"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "requests",
+                "query": "sum:sli.requests.total{*} by {shard}.as_count()"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "dog_classic",
+              "order_by": "values",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 33,
+        "width": 12,
+        "height": 3
+      }
+    },
+    {
+      "id": 14,
+      "definition": {
+        "title": "SLO Compliance by Shard - Under 1s Target",
+        "show_legend": true,
+        "legend_layout": "auto",
+        "type": "timeseries",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "baseline_under",
+                "query": "sum:sli.pipeline.under_1s{shard:shard-baseline}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "baseline_total",
+                "query": "sum:sli.pipeline.total{shard:shard-baseline}.as_count()"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Baseline SLO %",
+                "formula": "(baseline_under / baseline_total) * 100"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "dog_classic",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "shard1_under",
+                "query": "sum:sli.pipeline.under_1s{shard:shard-1}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "shard1_total",
+                "query": "sum:sli.pipeline.total{shard:shard-1}.as_count()"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Shard-1 SLO %",
+                "formula": "(shard1_under / shard1_total) * 100"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "green",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          },
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "shard2_under",
+                "query": "sum:sli.pipeline.under_1s{shard:shard-2}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "shard2_total",
+                "query": "sum:sli.pipeline.total{shard:shard-2}.as_count()"
+              }
+            ],
+            "formulas": [
+              {
+                "alias": "Shard-2 SLO %",
+                "formula": "(shard2_under / shard2_total) * 100"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "purple",
+              "line_type": "solid",
+              "line_width": "normal"
+            },
+            "display_type": "line"
+          }
+        ],
+        "yaxis": {
+          "min": "0",
+          "max": "100"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 36,
+        "width": 12,
+        "height": 4
+      }
+    },
+    {
+      "id": 3229437097864643,
+      "definition": {
+        "title": "Overall monitor",
+        "type": "manage_status",
+        "display_format": "countsAndList",
+        "color_preference": "text",
+        "hide_zero_counts": true,
+        "show_status": true,
+        "last_triggered_format": "relative",
+        "query": "",
+        "sort": "status,asc",
+        "count": 50,
+        "start": 0,
+        "summary_type": "monitors",
+        "show_priority": false,
+        "show_last_triggered": false
+      },
+      "layout": {
+        "x": 0,
+        "y": 40,
+        "width": 12,
+        "height": 4
+      }
+    }
+  ],
+  "template_variables": [],
+  "layout_type": "ordered",
+  "notify_list": [],
+  "reflow_type": "fixed"
+}
